@@ -17,4 +17,12 @@ class Tile(ABC):
         
     def get_game_object(self):
         return self.__game_object
+    
+    @abstractmethod
+    def display(self):
+        pass
+    
+    def __repr__(self):
+        return f"Tile(x={self.__x}, y = {self.__y}, object = {repr(self.__game_object)})"
         
+class WaterTile
