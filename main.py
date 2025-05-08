@@ -39,4 +39,12 @@ class WaterTile(Tile):
         return " "
     
 class LandTile(Tile):
-    
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.__treasure_container = None
+        
+    def set_treasure_container(self, treasure):
+        self.__treasure_container = treasure
+        
+    def get_treasure_container(self):
+        return self.__treasure_container
