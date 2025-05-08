@@ -71,4 +71,45 @@ class LandTile(Tile):
         return "+" # land tile
 
 class Map:
+    def __init__(self):
+        self.__tiles = []
+        try:
+            file = open("map.txt","r")
+            lines = file.readlines()
+            file.close()
+        except:
+            print("Error")
+            return
+        
+        for y in range(len(lines)):
+            row = []
+            line = lines[y].strip()
+            for x in range (len(line)):
+                ch = line[x]
+                if ch == "~":
+                    tile = WaterTile(x,y)
+                elif ch == "+":
+                    tile = LandTile(x,y)
+                else:
+                    tile = None
+                row.append(tile)
+            self.__tiles.append(row)
+            
+    def get_tile(self,x,y):
+        ''' Returns the tile at the given x and y coordinates. '''
+        if y >= 0 and y < len(self.__tiles):
+            if x >= 0 and x < len(self.__tiles[y]):
+                return self.__tiles[y][x]
+        return None
+    
+    def display_tiles(self):
+        ''' Displays the map by printing each tile's symbol. '''
+        for row in self.__tiles:
+            line = " "
+            for tile in row:
+                line += tile.display() + " "
+            print(line.strip())
+            
+    def update_game_entities(self):
+        pass
     
