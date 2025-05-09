@@ -192,9 +192,12 @@ class GameEntity:
             print("out of bounds.")
             return
         
-        if self.can_move(tile):
+        if self.can_move(tile) == False:
             print("This entity can't move to that tile.")
             return
+        
+    def can_move(self, tile):
+        return False
     
 class Pirate(GameEntity):
     def __init__(self, name, x=0, y=0, health=100):
@@ -209,6 +212,9 @@ class Pirate(GameEntity):
     
     def get_name(self):
         return self.__name
+    
+    def can_move(self, tile):
+        return type(tile).__name__ == "LandTile"
     
     
         
