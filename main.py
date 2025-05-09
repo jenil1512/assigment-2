@@ -216,7 +216,21 @@ class Pirate(GameEntity):
     def can_move(self, tile):
         return type(tile).__name__ == "LandTile"
     
-    
+    def dig(self):
+        ''' pick up the treasure from the land tile if available. '''
+        tile = map.get_tile(self.get_x(), self.get_y())
+        if type(tile).__name__ != "LandTile":
+            print("You can't dig on water.")
+            return
+        
+        treasure = tile.get_treasure_container()
+        if treasure == None:
+            print("Nothing to dig here.")
+            return
+        
+        self.add_treasure(treasure)
+        tile.set_treasure_container(None)
+        print("You found treasure!")
         
     
     
