@@ -232,6 +232,27 @@ class Pirate(GameEntity):
         tile.set_treasure_container(None)
         print("You found treasure!")
         
+class Ship(GameEntity):
+    def __init__(self, x=0, y=0, health=100):
+        super().__init__(x, y, health)
+        self.__cannon = Cannon()
+        
+    def reload_cannon(self, damage):
+        cannonball = CannonBall(damage)
+        self.__cannon.set_cannonball(cannonball)
+        print("Cannon reloaded.")
+        
+    def fire_cannon(self):
+        damage = self.__cannon._fire()
+        print(f"Ship fired. Damage: {damage}")
+        return damage
+
+    def can_move_to(self, tile):
+        return type(tile).__name__ == "WaterTile"
+    
+class EnemyShip(Ship):
+    
+        
     
     
         
