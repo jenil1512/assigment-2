@@ -113,3 +113,68 @@ class Map:
     def update_game_entities(self):
         pass
     
+    def main():
+        map = Map()
+        choice = None
+        
+        while choice != "quit":
+            if choice == 'w':
+                map.get_player().move(0, -1)
+            elif choice == 'a':
+                map.get_player().move(-1, 0)
+            elif choice == 's':
+                map.get_player().move(0, 1)
+            elif choice == 'd':
+                map.get_player().move(1, 0)
+            elif choice == 'dig':
+                map.get_player().dig()
+                
+            map.display_tiles()
+            choice = input("Enter w, a, s, d, dig, or quit: ")
+            map.update_game_entities()
+        
+        print("Goodbye")
+        
+    if __name__ == "__main__":
+        main()
+    
+class GameEntity:
+    def __init__(self, x=0, y=0, health=100):
+        self.__x = x
+        self.__y = y
+        self.set_health(health)
+        self.__treasure = []
+        
+    def move(self, dx, dy):
+        self.__x += dx
+        self.__y += dy
+        
+    def get_x(self):
+        return self.__x
+    
+    def get_y(self):
+        return self.__y
+    
+    def get_health(self):
+        return self.__health
+    
+    def set_health(self, health):
+        if type(health) == int and health >= 0:
+            self.__health = health
+        else:
+            print("error: health must be a positive integer.")
+            
+    def is_alive(self):
+        return self.__health > 0
+    
+    def add_treasure(self, treasure):
+        if type(treasure).__name__ == "Treasure":
+            self.__treasure.append(treasure)
+        else:
+            print("only treasure object can be added.")
+            
+    def get_treasure(self):
+        return self.__treasure
+    
+    
+        
