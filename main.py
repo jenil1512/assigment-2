@@ -183,6 +183,19 @@ class GameEntity:
         ''' Returns all collected treasure. '''
         return self.__treasure
     
+    def move(self, dx, dy):
+        new_x = self.__x + dx
+        new_y = self.__y + dy
+        
+        tile = map.get_tile(new_x, new_y)
+        if tile is None:
+            print("out of bounds.")
+            return
+        
+        if self.can_move(tile):
+            print("This entity can't move to that tile.")
+            return
+    
 class Pirate(GameEntity):
     def __init__(self, name, x=0, y=0, health=100):
         super().__init__(x, y, health)
