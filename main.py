@@ -139,6 +139,7 @@ class Map:
         main()
     
 class GameEntity:
+    '''A parent class pirate and ship.'''
     def __init__(self, x=0, y=0, health=100):
         self.__x = x
         self.__y = y
@@ -146,6 +147,7 @@ class GameEntity:
         self.__treasure = []
         
     def move(self, dx, dy):
+        ''' Move the entity by dx and dy. '''
         self.__x += dx
         self.__y += dy
         
@@ -156,25 +158,47 @@ class GameEntity:
         return self.__y
     
     def get_health(self):
+        ''' Returns the health value. '''
         return self.__health
     
     def set_health(self, health):
+        ''' Sets the health if it is a positive integer.'''
         if type(health) == int and health >= 0:
             self.__health = health
         else:
             print("error: health must be a positive integer.")
             
     def is_alive(self):
+        ''' Checks if the entity is alive. '''
         return self.__health > 0
     
     def add_treasure(self, treasure):
+        ''' Add a treasure. '''
         if type(treasure).__name__ == "Treasure":
             self.__treasure.append(treasure)
         else:
             print("only treasure object can be added.")
             
     def get_treasure(self):
+        ''' Returns all collected treasure. '''
         return self.__treasure
+    
+class Pirate(GameEntity):
+    def __init__(self, name, x=0, y=0, health=100):
+        super().__init__(x, y, health)
+        self.set_name(name)
+        
+    def set_name(self, name):
+        if type(name) != str or len(name) == 0:
+            print("name must not be empty. ")
+        else:
+            self.__name = name
+    
+    def get_name(self):
+        return self.__name
+    
+    
+        
     
     
         
