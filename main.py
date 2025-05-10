@@ -1,3 +1,34 @@
+class Treasure:
+    def __init__(self, name, value):
+        self.set_name(name)
+        self.set_value(value)
+        
+    def set_name(self, name):
+        ''' set treasure name and name cannot be empty.'''
+        if type(name) == str and name !=" ":
+            self.__name = name
+        else:
+            print("invalid name for treasure.")
+    
+    def get_name(self):
+        ''' Return treasure name.'''
+        return self.__name
+    
+    def set_value(self, value):
+        ''' Set treasure value and it is must be in a positive integers.'''
+        if type(value) == int and value > 0:
+            self.__value = value
+        else:
+            print("Invalid value for treasure.")
+            
+    def get_value(self):
+        ''' Returns treasure value.'''
+        return self.__value
+    
+    def __str__(self):
+        return f"{self.__name} ({self.__value} gold)"
+    
+
 class CannonBall:
     '''
     A class representing a cannonball used in a cannon to deal damage.
@@ -63,9 +94,25 @@ class GameEntity:
         
     def move(self, dx, dy):
         ''' Move the entity by dx and dy. '''
-        self.__x += dx
-        self.__y += dy
+        new_x = self.__x + dx
+        new_y = self.__y + dy
         
+        if Tile == None:
+            print("Invalid move: out of bounds.")
+            return
+        
+        can_move = self.can_move(Tile)
+        if can_move == False:
+            print("This entity cannot move to that tile.")
+            return
+                
+        Tile.set_game_object(self)
+        self.__x = new_x
+        self.__y = new_y     
+        
+    def can_move(self, tile):
+        return False
+          
     def get_x(self):
         return self.__x
     
@@ -98,21 +145,12 @@ class GameEntity:
         ''' Returns all collected treasure. '''
         return self.__treasure
     
-    def move(self, dx, dy):
-        new_x = self.__x + dx
-        new_y = self.__y + dy
-        
-        tile = map.get_tile(new_x, new_y)
-        if tile is None:
-            print("out of bounds.")
-            return
-        
-        if self.can_move(tile) == False:
-            print("This entity can't move to that tile.")
-            return
-        
-    def can_move(self, tile):
-        return False
+    def get_treasure_value(self):
+        total = 0
+        for t in self.__treasure:
+            total += t.get_value()
+        return total
+    
     
 class Pirate(GameEntity):
     def __init__(self, name, x=0, y=0, health=100):
@@ -203,7 +241,7 @@ class Tile(ABC):
     
     @abstractmethod
     def display(self):
-        pass
+        return " "
     
     def __repr__(self):
         return f"Tile(x={self.__x}, y = {self.__y}, object = {repr(self.__game_object)})"
@@ -275,10 +313,18 @@ class Map:
                 row.append(tile)
             self.__tiles.append(row)
             
-            start_tile = self.get_tile(0, 0)
-            if type(start_tile).__name__ == "WaterTile":
-                start_tile.set_game_object(self.__pirate_ship)
+        placed = False
+        for row in self.__tiles:
+            for tile in row:
+                if type(tile).__name__ == "LandTile" and placed == False:
+                    tile.set_game_object(self.__pirate)
+                    placed = True
+                    
+        first_tile = self.get_tile(0,0)
+        if type(first_tile).__name__ == "WaterTile":
+            first_tile.set_game_object(self.__pirate_ship)
             
+                 
     def get_tile(self,x,y):
         ''' Returns the tile at the given x and y coordinates. '''
         if y >= 0 and y < len(self.__tiles):
@@ -289,24 +335,16 @@ class Map:
     def get_player(self):
         return self.__pirate
     
-    def place_pirate(self):
-        for row in self.__tiles:
-            for tile in row:
-                if type(tile).__name__ == "LandTile":
-                    tile.set_game_object(self.__pirate)
-                    return
-                
-
     def display_tiles(self):
         for row in self.__tiles:
             line = ""
             for tile in row:
                 if tile != None:
-                    symbol = tile.display()
-                    line += symbol + " "
+                    line += tile.display() + " "
                 else:
-                    line += "? "  
+                    line += " "
             print(line.strip())
+
             
     def update_game_entities(self):
         for row in self.__tiles:
@@ -319,7 +357,7 @@ class Map:
             
     
 def main():
-        global map 
+        
         map = Map()
         choice = None
         
