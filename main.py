@@ -81,137 +81,7 @@ class Cannon:
         if self._cannonball:
             return f"Cannon loaded with {self._cannonball}"
         return "Cannon is empty"
-
-
-    
-class GameEntity:
-    '''A parent class pirate and ship.'''
-    def __init__(self, x=0, y=0, health=100):
-        self.__x = x
-        self.__y = y
-        self.set_health(health)
-        self.__treasure = []
-        
-    def move(self, dx, dy):
-        ''' Move the entity by dx and dy. '''
-        new_x = self.__x + dx
-        new_y = self.__y + dy
-        
-        if Tile == None:
-            print("Invalid move: out of bounds.")
-            return
-        
-        can_move = self.can_move(Tile)
-        if can_move == False:
-            print("This entity cannot move to that tile.")
-            return
-                
-        Tile.set_game_object(self)
-        self.__x = new_x
-        self.__y = new_y     
-        
-    def can_move(self, tile):
-        return False
-          
-    def get_x(self):
-        return self.__x
-    
-    def get_y(self):
-        return self.__y
-    
-    def get_health(self):
-        ''' Returns the health value. '''
-        return self.__health
-    
-    def set_health(self, health):
-        ''' Sets the health if it is a positive integer.'''
-        if type(health) == int and health >= 0:
-            self.__health = health
-        else:
-            print("error: health must be a positive integer.")
-            
-    def is_alive(self):
-        ''' Checks if the entity is alive. '''
-        return self.__health > 0
-    
-    def add_treasure(self, treasure):
-        ''' Add a treasure. '''
-        if type(treasure).__name__ == "Treasure":
-            self.__treasure.append(treasure)
-        else:
-            print("only treasure object can be added.")
-            
-    def get_treasure(self):
-        ''' Returns all collected treasure. '''
-        return self.__treasure
-    
-    def get_treasure_value(self):
-        total = 0
-        for t in self.__treasure:
-            total += t.get_value()
-        return total
-    
-    
-class Pirate(GameEntity):
-    def __init__(self, name, x=0, y=0, health=100):
-        super().__init__(x, y, health)
-        self.set_name(name)
-        
-    def set_name(self, name):
-        if type(name) != str or len(name) == 0:
-            print("name must not be empty. ")
-        else:
-            self.__name = name
-    
-    def get_name(self):
-        return self.__name
-    
-    def can_move(self, tile):
-        return type(tile).__name__ == "LandTile"
-    
-    def dig(self):
-        ''' pick up the treasure from the land tile if available. '''
-        tile = map.get_tile(self.get_x(), self.get_y())
-        if type(tile).__name__ != "LandTile":
-            print("You can't dig on water.")
-            return
-        
-        treasure = tile.get_treasure_container()
-        if treasure == None:
-            print("Nothing to dig here.")
-            return
-        
-        self.add_treasure(treasure)
-        tile.set_treasure_container(None)
-        print("You found treasure!")
-        
-class Ship(GameEntity):
-    def __init__(self, x=0, y=0, health=100):
-        super().__init__(x, y, health)
-        self.__cannon = Cannon()
-        
-    def reload_cannon(self, damage):
-        cannonball = CannonBall(damage)
-        self.__cannon.set_cannonball(cannonball)
-        print("Cannon reloaded.")
-        
-    def fire_cannon(self):
-        damage = self.__cannon._fire()
-        print(f"Ship fired. Damage: {damage}")
-        return damage
-
-    def can_move_to(self, tile):
-        return type(tile).__name__ == "WaterTile"
-    
-class EnemyShip(Ship):
-    def __init__(self, x=0, y=0, health=100):
-        super().__init__(x, y, health)
-        
-    def random_move(self):
-        import random
-        dx = random.choice([-1, 0, 1])
-        dy = random.choice([-1, 0, 1])
-        self.move(dx, dy)
+  
         
 from abc import ABC, abstractmethod
 
@@ -353,7 +223,138 @@ class Map:
                 
                 if entity != 0:
                     if type(entity).__name__ == "EnemyShip":
-                        entity.random_move()            
+                        entity.random_move() 
+                        
+class InvalidMoveException(Exception):
+    ''' Rased when a game entity attempts to move to an invalid location.'''
+    def __init__(self, message):
+        super().__init__(message)
+                        
+class GameEntity:
+    '''A parent class pirate and ship.'''
+    def __init__(self, x=0, y=0, health=100):
+        self.__x = x
+        self.__y = y
+        self.set_health(health)
+        self.__treasure = []
+        
+    def move(self, dx, dy):
+        ''' Move the entity by dx and dy. '''
+        new_x = self.__x + dx
+        new_y = self.__y + dy
+        tile = map.get_tile(new_x, new_y)
+        
+        if tile == None:
+            raise InvalidMoveException("Out of map bounds.")
+        
+        if self.can_move(tile) == False:
+            raise InvalidMoveException("Cannot move to this tile.")
+                        
+        tile.set_game_object(self)
+        self.__x = new_x
+        self.__y = new_y     
+        
+    def can_move(self, tile):
+        return False
+          
+    def get_x(self):
+        return self.__x
+    
+    def get_y(self):
+        return self.__y
+    
+    def get_health(self):
+        ''' Returns the health value. '''
+        return self.__health
+    
+    def set_health(self, health):
+        ''' Sets the health if it is a positive integer.'''
+        if type(health) == int and health >= 0:
+            self.__health = health
+        else:
+            print("error: health must be a positive integer.")
+            
+    def is_alive(self):
+        ''' Checks if the entity is alive. '''
+        return self.__health > 0
+    
+    def add_treasure(self, treasure):
+        ''' Add a treasure. '''
+        if type(treasure).__name__ == "Treasure":
+            self.__treasure.append(treasure)
+        else:
+            print("only treasure object can be added.")
+            
+    def get_treasure(self):
+        ''' Returns all collected treasure. '''
+        return self.__treasure
+    
+    def get_treasure_value(self):
+        total = 0
+        for t in self.__treasure:
+            total += t.get_value()
+        return total 
+    
+class Pirate(GameEntity):
+    def __init__(self, name, x=0, y=0, health=100):
+        super().__init__(x, y, health)
+        self.set_name(name)
+        
+    def set_name(self, name):
+        if type(name) != str or len(name) == 0:
+            print("name must not be empty. ")
+        else:
+            self.__name = name
+    
+    def get_name(self):
+        return self.__name
+    
+    def can_move(self, tile):
+        return type(tile).__name__ == "LandTile"
+    
+    def dig(self):
+        ''' pick up the treasure from the land tile if available. '''
+        tile = map.get_tile(self.get_x(), self.get_y())
+        if type(tile).__name__ != "LandTile":
+            print("You can't dig on water.")
+            return
+        
+        treasure = tile.get_treasure_container()
+        if treasure == None:
+            print("Nothing to dig here.")
+            return
+        
+        self.add_treasure(treasure)
+        tile.set_treasure_container(None)
+        print("You found treasure!")
+        
+class Ship(GameEntity):
+    def __init__(self, x=0, y=0, health=100):
+        super().__init__(x, y, health)
+        self.__cannon = Cannon()
+        
+    def reload_cannon(self, damage):
+        cannonball = CannonBall(damage)
+        self.__cannon.set_cannonball(cannonball)
+        print("Cannon reloaded.")
+        
+    def fire_cannon(self):
+        damage = self.__cannon._fire()
+        print(f"Ship fired. Damage: {damage}")
+        return damage
+
+    def can_move_to(self, tile):
+        return type(tile).__name__ == "WaterTile"
+    
+class EnemyShip(Ship):
+    def __init__(self, x=0, y=0, health=100):
+        super().__init__(x, y, health)
+        
+    def random_move(self):
+        import random
+        dx = random.choice([-1, 0, 1])
+        dy = random.choice([-1, 0, 1])
+        self.move(dx, dy)          
             
     
 def main():
@@ -362,16 +363,19 @@ def main():
         choice = None
         
         while choice != "quit":
-            if choice == 'w':
-                map.get_player().move(0, -1)
-            elif choice == 'a':
-                map.get_player().move(-1, 0)
-            elif choice == 's':
-                map.get_player().move(0, 1)
-            elif choice == 'd':
-                map.get_player().move(1, 0)
-            elif choice == 'dig':
-                map.get_player().dig()
+            try:
+                if choice == 'w':
+                    map.get_player().move(0, -1)
+                elif choice == 'a':
+                    map.get_player().move(-1, 0)
+                elif choice == 's':
+                    map.get_player().move(0, 1)
+                elif choice == 'd':
+                    map.get_player().move(1, 0)
+                elif choice == 'dig':
+                    map.get_player().dig()
+            except InvalidMoveException as e:
+                print(e)
                 
             map.display_tiles()
             choice = input("Enter w, a, s, d, dig, or quit: ")
